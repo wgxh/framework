@@ -2,6 +2,8 @@ import { Attributes, Childrens, Type } from "../../types/view";
 import { Base } from "./base";
 
 export class Element extends Base {
+	static styleEl: HTMLStyleElement = document.createElement("style");
+
 	constructor(type: Type, ...childrens: Childrens) {
 		super(type, childrens);
 	}
@@ -16,6 +18,17 @@ export class Element extends Base {
 			el.addEventListener(type, listener);
 		});
 	}
+	protected resolveStyle(el: HTMLStyleElement) {
+		const selector = `${this.type}.${this.attributes.className
+			.split(" ")
+			.join(".")}`;
+		const rules = `${Object.keys(this.styles)
+			.map((rule) => {
+				return `${rule}: ${this.styles[rule]};`;
+			})
+			.join("")}`;
+		el.innerText += `${selector} {${rules}}`;
+	}
 
 	render() {
 		if (this.type == "text") {
@@ -24,6 +37,7 @@ export class Element extends Base {
 			const el = document.createElement(this.type);
 			this.resolveAttributes(el);
 			this.resolveEvents(el);
+			this.resolveStyle(Element.styleEl);
 			this.childrens.forEach((child) => {
 				if (typeof child == "string") {
 					el.append(document.createTextNode(child));

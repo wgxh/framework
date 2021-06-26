@@ -1,12 +1,13 @@
-import { Attributes, Childrens, Type } from "../../types/view";
+import { Attributes, Childrens, Styles, Type } from "../../types/view";
 
 export class Base {
 	ownClassName: string = `w${Math.floor(Math.random() * 1000000)}`;
 	attributes: Attributes = {};
+	styles: Styles = {};
 	evnets: Map<keyof HTMLElementEventMap, EventListener> = new Map();
 
 	constructor(public type: Type, public childrens: Childrens) {
-		this.attributes["class"] = this.ownClassName;
+		this.attributes["className"] = this.ownClassName;
 	}
 
 	attrs(attrs: Attributes) {
@@ -15,7 +16,12 @@ export class Base {
 		return this;
 	}
 	class(...classNames: string[]) {
-		this.attributes["class"] = ` ${classNames.join(" ")}`;
+		this.attributes["className"] += ` ${classNames.join(" ")}`;
+
+		return this;
+	}
+	style(style: Styles) {
+		Object.assign(this.styles, style);
 
 		return this;
 	}

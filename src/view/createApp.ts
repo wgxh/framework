@@ -8,7 +8,9 @@ export function createApp(comp: () => () => Element) {
 		render(rootContainer: HTMLElement) {
 			watch(() => {
 				rootContainer.innerText = "";
+				Element.styleEl.innerText = "";
 				rootContainer.appendChild(renderer().render());
+				document.head.appendChild(Element.styleEl);
 			});
 		},
 	};

@@ -1,4 +1,5 @@
 export * from "./src/core/reactivity/reactive";
+export * from "./src/core/reactivity/ref";
 export * from "./src/view/element";
 export * from "./src/view/createApp";
 export * from "./src/view/base";

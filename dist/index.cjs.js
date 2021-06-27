@@ -75,24 +75,48 @@ function watch(observer) {
     activeDepends = observer;
     observer();
 }
+/**
+    * Raw object to observable object.
+    *
+    * @param target - raw object to observe.
+    */
+function use(raw) {
+    return new Reactive(raw).observale;
+}
+
+function ref(raw) {
+    if (typeof raw == "object") {
+        return use(raw);
+    }
+    else {
+        return use({
+            value: raw,
+        });
+    }
+}
 
 class Base {
     type;
     childrens;
     ownClassName = `w${Math.floor(Math.random() * 1000000)}`;
     attributes = {};
+    styles = {};
     evnets = new Map();
     constructor(type, childrens) {
         this.type = type;
         this.childrens = childrens;
-        this.attributes["class"] = this.ownClassName;
+        this.attributes["className"] = this.ownClassName;
     }
     attrs(attrs) {
         Object.assign(this.attributes, attrs);
         return this;
     }
     class(...classNames) {
-        this.attributes["class"] = ` ${classNames.join(" ")}`;
+        this.attributes["className"] += ` ${classNames.join(" ")}`;
+        return this;
+    }
+    style(style) {
+        Object.assign(this.styles, style);
         return this;
     }
     id(id) {
@@ -110,6 +134,7 @@ class Base {
 }
 
 class Element extends Base {
+    static styleEl = document.createElement("style");
     constructor(type, ...childrens) {
         super(type, childrens);
     }
@@ -123,6 +148,27 @@ class Element extends Base {
             el.addEventListener(type, listener);
         });
     }
+    resolveStyle(el) {
+        const selector = `${this.type}.${this.attributes.className
+            .split(" ")
+            .join(".")}`;
+        const rules = `${Object.keys(this.styles)
+            .map((rule) => {
+            return `${rule}: ${this.styles[rule]};`;
+        })
+            .join("")}`;
+        el.innerText += `${selector} {${rules}}`;
+    }
+    resolveChildrens(el) {
+        this.childrens.forEach((child) => {
+            if (typeof child == "string") {
+                el.append(document.createTextNode(child));
+            }
+            else {
+                el.append(child.render());
+            }
+        });
+    }
     render() {
         if (this.type == "text") {
             return document.createTextNode(this.childrens.join(""));
@@ -131,14 +177,8 @@ class Element extends Base {
             const el = document.createElement(this.type);
             this.resolveAttributes(el);
             this.resolveEvents(el);
-            this.childrens.forEach((child) => {
-                if (typeof child == "string") {
-                    el.append(document.createTextNode(child));
-                }
-                else {
-                    el.append(child.render());
-                }
-            });
+            this.resolveStyle(Element.styleEl);
+            this.resolveChildrens(el);
             return el;
         }
     }
@@ -150,7 +190,9 @@ function createApp(comp) {
         render(rootContainer) {
             watch(() => {
                 rootContainer.innerText = "";
+                Element.styleEl.innerText = "";
                 rootContainer.appendChild(renderer().render());
+                document.head.appendChild(Element.styleEl);
             });
         },
     };
@@ -180,5 +222,7 @@ exports.createApp = createApp;
 exports.div = div;
 exports.hl = hl;
 exports.p = p;
+exports.ref = ref;
 exports.span = span;
+exports.use = use;
 exports.watch = watch;

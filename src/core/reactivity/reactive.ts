@@ -1,4 +1,4 @@
-import {Depend, KeyDepends} from '../../../types/observer';
+import { Depend, KeyDepends } from "../../../types/observer";
 
 let activeDepends: Depend;
 
@@ -84,7 +84,7 @@ export function watch(observer: Depend) {
 	*
 	* @param target - raw object to observe.
 	*/
-export default function use<T extends object>(raw: T) {
+export function use<T extends object>(raw: T) {
 	return new Reactive(raw).observale;
 }
 

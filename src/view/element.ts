@@ -29,6 +29,15 @@ export class Element extends Base {
 			.join("")}`;
 		el.innerText += `${selector} {${rules}}`;
 	}
+	protected resolveChildrens(el: HTMLElement) {
+		this.childrens.forEach((child) => {
+			if (typeof child == "string") {
+				el.append(document.createTextNode(child));
+			} else {
+				el.append(child.render());
+			}
+		});
+	}
 
 	render() {
 		if (this.type == "text") {
@@ -38,13 +47,7 @@ export class Element extends Base {
 			this.resolveAttributes(el);
 			this.resolveEvents(el);
 			this.resolveStyle(Element.styleEl);
-			this.childrens.forEach((child) => {
-				if (typeof child == "string") {
-					el.append(document.createTextNode(child));
-				} else {
-					el.append(child.render());
-				}
-			});
+			this.resolveChildrens(el);
 
 			return el;
 		}
